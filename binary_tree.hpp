@@ -7,11 +7,11 @@ using namespace std;
 template<typename T>
 class BinaryTree{
 	struct Node{
-    explicit Node() = default;
-    explicit Node(const T& data) : value(data), left(nullptr), right(nullptr){}
-    
-    T value;
-    Node* right,* left;
+		explicit Node() = default;
+		explicit Node(const T& data) : value(data), left(nullptr), right(nullptr){}
+		
+		T value;
+		Node* right,* left;
 	};
 	
 	Node* root;
@@ -22,7 +22,7 @@ class BinaryTree{
 	
 	Node* __search__(Node* node, T data) const;
 	
-  Node* __append__(Node* node, T data);
+	Node* __append__(Node* node, T data);
 	void __add__(Node* node = nullptr);
 	
 	Node* __remove__(Node* node, T data);

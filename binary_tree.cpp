@@ -28,12 +28,16 @@ int main(){
 	histree.append(7);
 
 	cout << "\n***inorder_print  mytree***\n";
-	mytree.preorder_print();
+	mytree.inorder_print();
 	cout << "\n***inorder_print  histree***\n";
 	histree.inorder_print();
 	
 	BinaryTree<int> ourtree = mytree + histree;
 	cout << "\n***inorder_print  ourtree***\n";
+	ourtree.inorder_print();
+	
+  ourtree.remove(50);
+	cout << "\n***after remove  ourtree***\n";
 	ourtree.inorder_print();
 	
 	return 0;
