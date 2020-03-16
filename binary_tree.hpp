@@ -44,7 +44,7 @@ public:
 	Node* prev(T data) const;
 
 	
-	Node* append(T data);
+	void append(T data);
 	Node* remove(T data);
 
 	Node* get_root() const;
@@ -228,7 +228,7 @@ typename BinaryTree<T>::Node* BinaryTree<T>::__append__(Node* node, T data){
 }
 
 template< typename T >
-typename BinaryTree<T>::Node* BinaryTree<T>::append(T data){
+void BinaryTree<T>::append(T data){
 	__append__(root, data);
 }
 
@@ -273,7 +273,7 @@ typename BinaryTree<T>::Node* BinaryTree<T>::__remove__(Node* node, T data){
 
 template< typename T >
 typename BinaryTree<T>::Node* BinaryTree<T>::remove(T data){
-	__remove__(root, data);
+	return __remove__(root, data);
 }
 
 template<typename T>
