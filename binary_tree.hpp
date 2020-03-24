@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <stack>
 #include <iomanip>
 using namespace std;
 
@@ -11,10 +12,10 @@ class BinaryTree{
 		explicit Node(const T& data) : value(data), left(nullptr), right(nullptr){}
 		
 		T value;
-		Node* right,* left;
+		Node* right = nullptr,* left = nullptr;
 	};
 	
-	Node* root;
+	Node* root = nullptr;
   
 	void __inorder_traversal__(Node* node = nullptr, int indent = 0) const;
 	void __preorder_traversal__(Node* node = nullptr, int indent = 0) const;
@@ -26,10 +27,14 @@ class BinaryTree{
 	void __add__(Node* node = nullptr);
 	
 	Node* __remove__(Node* node, T data);
-  
+	void makeEmpty(Node* node); //deletes a tree
+	void make_empty__();  //auxiliary function for deleting a tree
+
 public:
-	explicit BinaryTree();
-	~BinaryTree();
+	BinaryTree();  //ctor
+	BinaryTree(const BinaryTree<T>& rhs);  //copy ctor
+	BinaryTree<T>& operator=(const BinaryTree<T>& rhs);  //op=
+	~BinaryTree();  //dtor
 	
 	void inorder_print(int indent = 0) const;
 	void preorder_print(int indent = 0) const;
@@ -49,12 +54,28 @@ public:
 
 	Node* get_root() const;
 	
-	BinaryTree<T> operator+(const BinaryTree<T>& lhs);
+	template<typename U>
+	friend void merge__(BinaryTree<U>& rhs, typename BinaryTree<U>::Node* node);  //auxiliary function for op+, op= and copy ctor
 
 };
 
 template<typename T>
 BinaryTree<T>::BinaryTree() : root(nullptr){}
+
+template<typename T>
+BinaryTree<T>::BinaryTree(const BinaryTree& rhs) {
+	merge__(*this, rhs.get_root());
+}
+
+template<typename T>
+BinaryTree<T>& BinaryTree<T>::operator=(const BinaryTree<T>& rhs) {
+	if (rhs.get_root() == root)
+		return *this;
+
+	make_empty__();
+	merge__(*this, rhs.get_root());
+	return *this;
+}
 
 template<typename T>
 typename BinaryTree<T>::Node* BinaryTree<T>::get_root() const{
@@ -233,18 +254,27 @@ void BinaryTree<T>::append(T data){
 }
 
 template< typename T >
-void BinaryTree<T>::__add__(Node* node) {
-	if (node){
-    __add__(node->left);
-    append(node->value);
-    __add__(node->right);
-  }
+void merge__(BinaryTree<T>& rhs, typename BinaryTree<T>::Node* node) {
+	using pnode_t = typename BinaryTree<T>::Node*;
+	std::stack<pnode_t> tree_stack;
+	tree_stack.push(node);
+	while(!tree_stack.empty()) {
+		node = tree_stack.top();
+		tree_stack.pop();
+		rhs.append(node->value);
+		if(node->right)
+			tree_stack.push(node->right);
+		if(node->left)
+			tree_stack.push(node->left);
+	}
 }
 
 template<typename T>
-BinaryTree<T> BinaryTree<T>::operator+(const BinaryTree<T>& lhs) {
-	BinaryTree<T> ans = *this;
-	ans.__add__(lhs.get_root());
+BinaryTree<T> operator+(const BinaryTree<T>& rhs, const BinaryTree<T>& lhs) {  //operation of adding the rhs tree to the current one
+	BinaryTree<T> ans(rhs);
+	if (!ans.get_root() && !lhs.get_root())
+		return ans;
+	merge__(ans, lhs.get_root());
 	return ans;
 }
 
@@ -277,9 +307,20 @@ typename BinaryTree<T>::Node* BinaryTree<T>::remove(T data){
 }
 
 template<typename T>
+void BinaryTree<T>::makeEmpty(Node* node) {
+	if(!node)
+		return;
+	makeEmpty(node->left);
+	makeEmpty(node->right);
+	delete node;
+}
+
+template<typename T>
+void BinaryTree<T>::make_empty__() {
+	makeEmpty(root);
+}
+
+template<typename T>
 BinaryTree<T>::~BinaryTree(){
-	Node* temp = root;
-	while(root){
-		root = remove(root->value);
-	}
+	make_empty__();
 }

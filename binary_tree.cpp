@@ -32,7 +32,8 @@ int main(){
 	cout << "\n***inorder_print  histree***\n";
 	histree.inorder_print();
 	
-	BinaryTree<int> ourtree = mytree + histree;
+	BinaryTree<int> ourtree;
+	ourtree = mytree + histree;
 	cout << "\n***inorder_print  ourtree***\n";
 	ourtree.inorder_print();
 	
