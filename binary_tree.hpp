@@ -3,7 +3,12 @@
 #include <iostream>
 #include <stack>
 #include <iomanip>
+#include <thread>
+#include <async>
+#include <future>
 using namespace std;
+#include "threadCounter.hpp"
+
 
 template<typename T>
 class BinaryTree{
@@ -29,9 +34,10 @@ class BinaryTree{
 	Node* __remove__(Node* node, T data);
 	void makeEmpty(Node* node); //deletes a tree
 	void make_empty__();  //auxiliary function for deleting a tree
+	ThreadCounter thread_counter;
 
 public:
-	BinaryTree();  //ctor
+	BinaryTree(int n);  //ctor
 	BinaryTree(const BinaryTree<T>& rhs);  //copy ctor
 	BinaryTree<T>& operator=(const BinaryTree<T>& rhs);  //op=
 	~BinaryTree();  //dtor
@@ -60,7 +66,9 @@ public:
 };
 
 template<typename T>
-BinaryTree<T>::BinaryTree() : root(nullptr){}
+BinaryTree<T>::BinaryTree(int n) : root(nullptr){
+    thread_counter = ThreadCounter(n);
+}
 
 template<typename T>
 BinaryTree<T>::BinaryTree(const BinaryTree& rhs) {
