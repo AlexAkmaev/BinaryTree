@@ -274,6 +274,7 @@ void merge__(BinaryTree<T>& rhs, typename BinaryTree<T>::Node* node) {
 
 template< typename T >
 int BinaryTree<T>::sum_one_thread(Node* head) const {
+	if(!head) return 0;
 	using pnode_t = typename BinaryTree<T>::Node*;
 	std::stack<pnode_t> tree_stack;
 	Node* node = head;
@@ -296,29 +297,14 @@ int BinaryTree<T>::sum_all() const {
 	if(!root) return 0;
 	Node* node = root, *lfnode, *rhnode;
 	T res = node->value;
-	if(rhnode = root->right)
-		;//res += rhnode->value;
-	if(lfnode = root->left)
-		;//res += lfnode->value;
+	rhnode = root->right;
+	lfnode = root->left;
 
-	future<int> left1, right1;
-	//if(lfnode->left)
-	  right1 = async([&](){ return sum_one_thread(rhnode); });
-  //if(lfnode->right)
-	  left1 = async([&](){ return sum_one_thread(lfnode); });
+	future<int> right1, left1;
+	right1 = async([&](){ return sum_one_thread(rhnode); });
+  left1 = async([&](){ return sum_one_thread(lfnode); });
 	
 	res += right1.get() + left1.get();
-//	future<int> left1, left2, right1, right2;
-//	if(lfnode->left)
-//	  left1 = async([&](){ return sum_one_thread(lfnode->left); });
-//  if(lfnode->right)
-//	  left2 = async([&](){ return sum_one_thread(lfnode->right); });
-//  if(rhnode->left)
-//	  right1 = async([&](){ return sum_one_thread(rhnode->left); });
-//  if(rhnode->right)
-//	  right2 = async([&](){ return sum_one_thread(rhnode->right); });
-//	
-//	res = left1.get() + left2.get() + right1.get() + right2.get();
 	return res;
 }
 
