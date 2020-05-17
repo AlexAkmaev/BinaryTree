@@ -3,18 +3,14 @@
 #include <iostream>
 #include <stack>
 #include <iomanip>
-#include <thread>
-#include <async>
 #include <future>
 using namespace std;
-#include "threadCounter.hpp"
 
 
 template<typename T>
 class BinaryTree{
 	struct Node{
-		explicit Node() = default;
-		explicit Node(const T& data) : value(data), left(nullptr), right(nullptr){}
+		explicit Node(const T& data) : value(data) {}
 		
 		T value;
 		Node* right = nullptr,* left = nullptr;
@@ -34,10 +30,9 @@ class BinaryTree{
 	Node* __remove__(Node* node, T data);
 	void makeEmpty(Node* node); //deletes a tree
 	void make_empty__();  //auxiliary function for deleting a tree
-	ThreadCounter thread_counter;
 
 public:
-	BinaryTree(int n);  //ctor
+	BinaryTree();  //ctor
 	BinaryTree(const BinaryTree<T>& rhs);  //copy ctor
 	BinaryTree<T>& operator=(const BinaryTree<T>& rhs);  //op=
 	~BinaryTree();  //dtor
@@ -47,6 +42,8 @@ public:
 	void postorder_print(int indent = 0) const;
 
 	Node* search(T data) const;
+	int sum_one_thread(Node* head) const;
+	int sum_all() const;
 
 	Node* minimum(Node* node = nullptr) const;
 	Node* maximum(Node* node = nullptr) const;
@@ -66,9 +63,7 @@ public:
 };
 
 template<typename T>
-BinaryTree<T>::BinaryTree(int n) : root(nullptr){
-    thread_counter = ThreadCounter(n);
-}
+BinaryTree<T>::BinaryTree() = default;
 
 template<typename T>
 BinaryTree<T>::BinaryTree(const BinaryTree& rhs) {
@@ -275,6 +270,56 @@ void merge__(BinaryTree<T>& rhs, typename BinaryTree<T>::Node* node) {
 		if(node->left)
 			tree_stack.push(node->left);
 	}
+}
+
+template< typename T >
+int BinaryTree<T>::sum_one_thread(Node* head) const {
+	using pnode_t = typename BinaryTree<T>::Node*;
+	std::stack<pnode_t> tree_stack;
+	Node* node = head;
+	int res = 0;
+	tree_stack.push(node);
+	while(!tree_stack.empty()) {
+		node = tree_stack.top();
+		tree_stack.pop();
+		res += node->value;
+		if(node->right)
+			tree_stack.push(node->right);
+		if(node->left)
+			tree_stack.push(node->left);
+	}
+	return res;
+}
+
+template< typename T >
+int BinaryTree<T>::sum_all() const {
+	if(!root) return 0;
+	Node* node = root, *lfnode, *rhnode;
+	T res = node->value;
+	if(rhnode = root->right)
+		;//res += rhnode->value;
+	if(lfnode = root->left)
+		;//res += lfnode->value;
+
+	future<int> left1, right1;
+	//if(lfnode->left)
+	  right1 = async([&](){ return sum_one_thread(rhnode); });
+  //if(lfnode->right)
+	  left1 = async([&](){ return sum_one_thread(lfnode); });
+	
+	res += right1.get() + left1.get();
+//	future<int> left1, left2, right1, right2;
+//	if(lfnode->left)
+//	  left1 = async([&](){ return sum_one_thread(lfnode->left); });
+//  if(lfnode->right)
+//	  left2 = async([&](){ return sum_one_thread(lfnode->right); });
+//  if(rhnode->left)
+//	  right1 = async([&](){ return sum_one_thread(rhnode->left); });
+//  if(rhnode->right)
+//	  right2 = async([&](){ return sum_one_thread(rhnode->right); });
+//	
+//	res = left1.get() + left2.get() + right1.get() + right2.get();
+	return res;
 }
 
 template<typename T>
